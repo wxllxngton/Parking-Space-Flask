@@ -71,10 +71,10 @@ def admin_only(function):
 @app.route('/', methods=['GET', 'POST'])
 def home():
     error = None
-    if request.method == 'GET':
+    if request.method == 'POST':
         # Setting parameters
-        form_email = request.args.get('email')
-        form_password = request.args.get('password')
+        form_email = request.form['email']
+        form_password = request.form['password']
         #Find user by email entered.
         try:
             user = User.select().where(User.email == form_email).get()
