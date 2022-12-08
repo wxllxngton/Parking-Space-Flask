@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Checkout canceled</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <section>
+            <p>
+                Forgot to add something to your cart? Shop around then come back
+                to pay!
+            </p>
+            <p>
+                <a class="navbar-brand" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='img/back.png') }}" width="30" height="30"  alt="logo">
+                </a><small>Go back to <a href="{{ url_for('home') }}" id="signup">Homepage.</small> </a>
+            </p>
+        </section>
+    </body>
+</html>
