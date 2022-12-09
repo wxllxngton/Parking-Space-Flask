@@ -1,3 +1,5 @@
+'use strict';
+
 document.querySelector('.navbar-nav').addEventListener('click', function (e) {
     // console.log(e.currentTarget); // Parent element
 
