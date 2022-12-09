@@ -296,15 +296,12 @@
 
   <div class="jumbotron">
     <div class="row">
-        <div class="card mb-3 col-md-8 border-0">
-            <div class="row no-gutters">
-              <div class="col-md-4">
-                          <img src="{{ url_for('static', filename='img/contacts.jpg' ) }}" alt="logo">
+        <div class="card mb-3 col-lg-6 border-0">
+          <img src="{{ url_for('static', filename='img/contacts.jpg' ) }}" alt="logo">
 
-              </div>
-            </div>
         </div>
-        <form class="card  text-white p-3 col-md-4" method="post">
+        <div class="col-lg-6">
+         <form class="card  text-white p-3" method="post">
             <div class="form-group">
                 <label class="float-left" for="name">Name</label>
                 <input id="name" class="form-control"  type="text" placeholder="Enter your name" name="name">
@@ -315,6 +312,8 @@
             </div>
             <button type="submit" class="btn btn-lg btn-outline-primary">Submit</button>
         </form>
+      </div>
+
     </div>
   </div>
 
