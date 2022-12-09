@@ -67,9 +67,23 @@ def admin_only(function):
         return function(*args, **kwargs)
     return decorated_function
 
-
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    permission = None
+    try:
+        if Receipt.get(Receipt.user == current_user.email, Receipt.status == 'Unpaid'):
+            permission = True
+    except:
+        permission = False
+
+    if request.method == 'POST':
+        Feedback.insert(fname=request.form['name'], comment=request.form['comment']).execute()
+        return render_template('index.html', logged_in=current_user.is_authenticated, message='Comment has been successfully sent 👍')
+    return render_template('index.html', logged_in=current_user.is_authenticated, permission_checkout=permission)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
     error = None
     if request.method == 'POST':
         # Setting parameters
@@ -80,7 +94,7 @@ def home():
             user = User.select().where(User.email == form_email).get()
         except User.DoesNotExist:
             error = 'Invalid credentials!'
-            return render_template("index.html", error=error, logged_in=current_user.is_authenticated)
+            return render_template("login.html", error=error, logged_in=current_user.is_authenticated)
         # Comapring data
         if check_password_hash(user.password,form_password):
             login_user(user)
@@ -93,8 +107,8 @@ def home():
                 return redirect(url_for('check_in'))
         else:
             error = 'Invalid credentials'
-            return render_template("index.html", error=error, logged_in=current_user.is_authenticated)
-    return render_template('index.html', logged_in=current_user.is_authenticated)
+            return render_template("login.html", error=error, logged_in=current_user.is_authenticated)
+    return render_template('login.html', logged_in=current_user.is_authenticated)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -107,10 +121,10 @@ def register():
         try:
             # Inserting data
             User.insert(email=request.form['email'], password=password_hashed, fname=request.form['fname'], lname=request.form['lname']).execute()
-            return render_template('index.html', logged_in=current_user.is_authenticated, error='Account created successfully 👍')
+            return render_template('login.html', logged_in=current_user.is_authenticated, error='Account created successfully 👍')
         except IntegrityError:
             error = 'You already have an account'
-            return render_template("index.html", error=error)
+            return render_template("login.html", error=error)
     return render_template('sign-up.html', logged_in=current_user.is_authenticated)
 
 
@@ -327,7 +341,7 @@ def delete_user(id):
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    return redirect(url_for('login'))
 
 #------------------------------------------------------------------------------#
 
@@ -367,7 +381,7 @@ def change_password(email):
             # Updating password
             q = User.update(password=password_hashed).where(User.email == email)
             q.execute()
-            return redirect(url_for('home'))
+            return redirect(url_for('login'))
         else:
             return redirect(url_for('recover_password'))
     return render_template('change-password.html')
