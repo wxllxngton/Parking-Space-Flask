@@ -5,6 +5,8 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
+        <div id="loader"></div>
+
         <section>
             <p>
                 Forgot to add something to your cart? Shop around then come back
@@ -16,5 +18,8 @@
                 </a><small>Go back to <a href="{{ url_for('home') }}" id="signup">Homepage.</small> </a>
             </p>
         </section>
+
+        <!-- Custom js -->
+        <script src="{{ url_for('static' , filename='script.js') }}"></script>
     </body>
 </html>
