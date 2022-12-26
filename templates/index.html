@@ -21,13 +21,15 @@
 
   </head>
   <body>
+    <div id="loader"></div>
+
 
 
         <header>
 
         <!--Navbar Section-->
 
-             <nav class="navbar navbar-expand-md navbar-dark sticky-top ">
+             <nav class="navbar navbar-expand-md navbar-dark fixed-top ">
                 <div class="container">
                      <a class="navbar-brand" href="{{ url_for('home') }}">
                          <img src="{{ url_for('static', filename='img/jeep.png') }}" width="25" height="25"  alt="logo">
@@ -42,6 +44,7 @@
                      </button>
                      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                       <div class="navbar-nav ml-auto">
+                        <a class="nav-item nav-link nav-real" href="#home">Home</a>
                         <a class="nav-item nav-link nav-real" href="#about">About</a>
                         <a class="nav-item nav-link nav-real" href="#FAQ">FAQ</a>
                         <a class="nav-item nav-link nav-real" href="#contacts">Contacts</a>
@@ -74,7 +77,7 @@
 
 
 
-        <main>
+        <main style="padding-top: 60px;" id="home">
             <!--Main Menu-->
             <div class="container-fluid banner text-center ">
               {% if message %}
@@ -401,5 +404,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <!-- Custom js -->
+    <script src="{{ url_for('static' , filename='script.js') }}"></script>
   </body>
 </html>
