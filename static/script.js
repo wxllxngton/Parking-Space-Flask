@@ -81,3 +81,27 @@ function backToTop() {
 
 document.querySelector('.copyright-year').textContent =
     new Date().getFullYear();
+
+/* ----------------------------------------------------------- */
+/*  FADE OUT LINK
+  /* ----------------------------------------------------------- */
+
+const navBar = document.querySelector('nav');
+const handleHover = function (e) {
+    if (e.target.classList.contains('nav-link')) {
+        const link = e.target;
+        const siblings = link.closest('nav').querySelectorAll('nav-link');
+        const logo = link.closest('nav').querySelector('img');
+        const navBrand = document.querySelectorAll('.navbar-brand');
+
+        siblings.forEach((el) => {
+            console.log(el);
+            if (el !== link) el.style.opacity = this;
+        });
+        logo.style.opacity = this;
+        navBrand.forEach((el) => (el.style.opacity = this));
+    }
+};
+
+navBar.addEventListener('mouseover', handleHover.bind(0.5));
+navBar.addEventListener('mouseout', handleHover.bind(1));
