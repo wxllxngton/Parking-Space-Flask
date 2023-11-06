@@ -13,6 +13,9 @@
     <!--Icon for Title-->
     <link rel="icon" href="{{ url_for('static', filename='img/jeep.png') }}" type="image/icon type">
 
+    <!-- FontAwesome CDN -->
+    <script src="https://kit.fontawesome.com/321779f561.js" crossorigin="anonymous"></script>
+
   </head>
   <body>
     <div id="loader"></div>
@@ -60,7 +63,14 @@
      </nav>
 </header>
 
-
+<div class="card mt-5 p-3 notification-card">
+  <div class="media">
+      <div class="media-body">
+        <h6><i class="fa-solid fa-check" style="color: #2fe432;"></i> Booking Complete</h6>
+        <p class="mt-2 mb-0">Your reserved spot id is <b>{{ spot_id }}</b> at <b>{{ spot_name }}</b></p>
+      </div>
+  </div>
+</div>
   <!--Checkout Section-->
   <div class="container-fluid px-0 py-4 mt-4 text-dark ">
   <div class="row">
@@ -83,6 +93,7 @@
                   </button>
                 </div>
                 {% endif %}
+                <!-- <div>{{ spot_id }}</div> -->
                     <form id="register-form" role="form" autocomplete="off" class="form py-2" action="{{ url_for('check_out') }}" method="post">
 
                     <div class="form-group">

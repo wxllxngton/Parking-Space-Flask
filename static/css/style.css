@@ -109,3 +109,19 @@ form .submit {
     background: #efeceb url('../assets/loader.gif') no-repeat center;
     z-index: 999;
 }
+
+.notification-card {
+    position: absolute;
+    margin-left: 1px;
+    width: 350px;
+    border: none;
+    border-radius: 20px;
+    background-color: black;
+}
+.notification-card h6,
+.notification-card p {
+    color: #e5f3ff;
+}
+.notification-card .text {
+    color: #b2c9ff;
+}

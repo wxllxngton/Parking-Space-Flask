@@ -154,6 +154,10 @@ def search_by_location(location):
 @app.route('/check-out', methods=['GET', 'POST'])
 def check_out():
     error = None
+    reserved_spot_id = Receipt.select().where(Receipt.user == current_user.email, Receipt.status=='Unpaid').get().spot_id
+    reserved_spot_name = Location.select().where(Location.id == ParkingSpot.select().where(ParkingSpot.id == reserved_spot_id).get().business_id).get().name
+    print(reserved_spot_id)
+    print(reserved_spot_name)
     if request.method == 'POST':
         # Setting parameters
         email = request.form['email']
@@ -207,7 +211,7 @@ def check_out():
         except Receipt.DoesNotExist:
             error = 'Receipt does not exist'
             return render_template("check-out.html", error=error)
-    return render_template('check-out.html', logged_in=current_user.is_authenticated)
+    return render_template('check-out.html', logged_in=current_user.is_authenticated, spot_id=reserved_spot_id, spot_name=reserved_spot_name)
 
 
 @app.route('/dashboard')
