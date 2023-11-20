@@ -31,7 +31,7 @@
                 <a class="navbar-brand" href="{{ url_for('home') }}">
                     <img src="{{ url_for('static', filename='img/jeep.png') }}" width="25" height="25" alt="logo">
                 </a>
-                <a class="navbar-brand" href="{{ url_for('home') }}">Leaving {{ current_user.fname }}?</a>
+                <a class="navbar-brand" href="{{ url_for('home') }}">Schedule a spot, {{ current_user.fname }}?</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse"
                     data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
                     aria-label="Toggle navigation">
@@ -41,12 +41,12 @@
                     <div class="navbar-nav ml-auto">
                         <!-- Shows logged_in -->
                         {% if logged_in %}
-                        <a class="nav-item nav-link" href="/logout">Sign out <span
-                                class="sr-only">(current)</span></a>
                         {% if current_user.email == 'admin@gmail.com' %}
                         <a class="nav-item nav-link" href="{{ url_for('dashboard') }}">Admin <span
                                 class="sr-only">(current)</span></a>
                         {% endif %}
+                        <a class="nav-item nav-link" href="/logout">Sign out <span
+                            class="sr-only">(current)</span></a>
                         {% endif %}
                         <!-- Shows if not logged_in -->
                         {% if not logged_in %}
