@@ -15,125 +15,95 @@
 
     <!-- FontAwesome CDN -->
     <script src="https://kit.fontawesome.com/321779f561.js" crossorigin="anonymous"></script>
-
   </head>
   <body>
     <div id="loader"></div>
 
-
-  <header>
-
-<!--Navbar Section-->
-
-     <nav class="navbar navbar-expand-md navbar-dark">
+    <header>
+      <!-- Navbar Section -->
+      <nav class="navbar navbar-expand-md navbar-dark">
         <div class="container">
-             <a class="navbar-brand" href="{{ url_for('home') }}">
-                 <img src="{{ url_for('static', filename='img/jeep.png') }}" width="25" height="25"  alt="logo">
-             </a>
-             <a class="navbar-brand" href="{{ url_for('home') }}">Leaving {{ current_user.fname }}?</a>
-             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-             </button>
-             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-              <div class="navbar-nav ml-auto">
-                    <!-- Shows logged_in -->
-                    {% if logged_in %}
-                    <a class="nav-item nav-link" href="/logout"
-                        >Sign out <span class="sr-only">(current)</span></a
-                    >
-                    >{% if current_user.fname == 'Mulinge' %}
-                    <a class="nav-item nav-link" href="{{ url_for('dashboard') }}"
-                        >Admin <span class="sr-only">(current)</span></a
-                    >
-                    {% endif %}
-                    {% endif %}
-                    <!-- Shows if not logged_in -->
-                    {% if not logged_in %}
-                    <a class="nav-item nav-link" href="/register"
-                        >Register <span class="sr-only">(current)</span></a
-                    >
-                    <a class="nav-item nav-link" href="/login"
-                        >Login <span class="sr-only">(current)</span></a
-                    >
-                    {% endif %}
-              </div>
-             </div>
+          <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='img/jeep.png') }}" width="25" height="25"  alt="logo">
+          </a>
+          <a class="navbar-brand" href="{{ url_for('home', check_in_time=check_in_time) }}">Leaving {{ current_user.fname }}?</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ml-auto">
+              <!-- Shows logged_in -->
+              {% if logged_in %}
+                {% if current_user.email == 'admin@gmail.com' %}
+                  <a class="nav-item nav-link" href="{{ url_for('dashboard', check_in_time=check_in_time) }}">Admin <span class="sr-only">(current)</span></a>
+                {% endif %}
+                <a class="nav-item nav-link" href="/logout">Sign out <span class="sr-only">(current)</span></a>
+              {% endif %}
+              <!-- Shows if not logged_in -->
+              {% if not logged_in %}
+                <a class="nav-item nav-link" href="/register">Register <span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="/login">Login <span class="sr-only">(current)</span></a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
 
-         </div>
-     </nav>
-</header>
-
-<div class="card mt-5 p-3 notification-card">
-  <div class="media">
-      <div class="media-body">
-        <h6><i class="fa-solid fa-check" style="color: #2fe432;"></i> Booking Complete</h6>
-        <p class="mt-2 mb-0">Your reserved spot id is <b>{{ spot_id }}</b> at <b>{{ spot_name }}</b></p>
+    <div class="card mt-5 p-3 notification-card">
+      <div class="media">
+        <div class="media-body">
+          <h6><i class="fa-solid fa-check" style="color: #2fe432;"></i> Booking Complete</h6>
+          <p class="mt-2 mb-0">Your reserved spot id is <b>{{ spot_id }}</b> at <b>{{ spot_name }}</b></p>
+        </div>
       </div>
-  </div>
-</div>
-  <!--Checkout Section-->
-  <div class="container-fluid px-0 py-4 mt-4 text-dark ">
-  <div class="row">
-		<div class="col-md-12 col-md-offset-12">
-            <div class="panel panel-default">
-              <div class="panel-body">
-                <div class="text-center">
+    </div>
+
+    <!-- Checkout Section -->
+    <div class="container-fluid px-0 py-4 mt-4 text-dark">
+      <div class="row">
+        <div class="col-md-12 col-md-offset-12">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <div class="text-center">
                 <div class="checkout-head  bg-dark  py-4 text-white">
-                <img src="{{ url_for('static', filename='img/checkout2.png') }}" width="50" height="50"  alt="logo">
-
-                <h2 class="text-center font-weight-bold ">Checkout</h2>
+                  <img src="{{ url_for('static', filename='img/checkout2.png') }}" width="50" height="50"  alt="logo">
+                  <h2 class="text-center font-weight-bold">Checkout</h2>
                   <p class="font-italic">Input your email address</p>
-
                 </div>
                 {% if error %}
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                  {{ error }}
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                {% endif %}
-                <!-- <div>{{ spot_id }}</div> -->
-                    <form id="register-form" role="form" autocomplete="off" class="form py-2" action="{{ url_for('check_out') }}" method="post">
-
-                    <div class="form-group">
-    <input type="text" class="form-control" id="email" placeholder="Email address..." name="email">
-  </div>
-  <button type="submit" class="btn btn-lg btn-dark btn-block">
-    Confirm
-</button>
-
-                      <div class="form-group">
-                      <div class="go-home py-2 font-italic">
-            <p class="font-italic">
-                 <a class="navbar-brand" href="{{ url_for('home') }}">
-                 <img src="{{ url_for('static', filename='img/back.png') }}" width="30" height="30"  alt="logo">
-                 </a><small>Go back to <a href="{{ url_for('home') }}" id="signup">Homepage </small></a>
-             </p>
-
-            </div>
-
-                           </div>
-
-
-                    </form>
-
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ error }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
                   </div>
-                </div>
+                {% endif %}
+                <form id="register-form" role="form" autocomplete="off" class="form py-2" action="{{ url_for('check_out') }}" method="post">
+                  {% if not cancel_booking_permission %}
+                    <a class="btn btn-lg btn-dark btn-block" href="{{ url_for('cancel_reservation', check_in_time=check_in_time) }}">Delete</a>
+                  {% else %}
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="email" placeholder="Email address..." name="email">
+                    </div>
+                    <button type="submit" class="btn btn-lg btn-dark btn-block">Confirm</button>
+                  {% endif %}
+                  <div class="form-group">
+                    <div class="go-home py-2 font-italic">
+                      <p class="font-italic">
+                        <a class="navbar-brand" href="{{ url_for('home', check_in_time=check_in_time) }}">
+                          <img src="{{ url_for('static', filename='img/back.png') }}" width="30" height="30"  alt="logo">
+                        </a><small>Go back to <a href="{{ url_for('home', check_in_time=check_in_time) }}" id="signup">Homepage </small></a>
+                      </p>
+                    </div>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
-	</div>
-
-            </div>
-
-
-
-
-
-
-
-
+        </div>
+      </div>
+    </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

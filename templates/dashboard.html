@@ -1,202 +1,138 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Dashboard</title>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<head>
+  <title>Dashboard</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!--Icon for Title-->
-    <link rel="icon" href="{{ url_for('static', filename='img/jeep.png') }}" type="image/icon type">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <!-- Font Awesome Script -->
-    <script
-    src="https://kit.fontawesome.com/321779f561.js"
-    crossorigin="anonymous"
-></script>
+  <!-- Icon for Title -->
+  <link rel="icon" href="{{ url_for('static', filename='img/jeep.png') }}" type="image/icon type">
 
-  </head>
-  <body>
-    <div id="loader"></div>
+  <!-- Font Awesome Script -->
+  <script src="https://kit.fontawesome.com/321779f561.js" crossorigin="anonymous"></script>
+</head>
 
+<body>
+  <div id="loader"></div>
 
   <header>
+    <!-- Navbar Section -->
+    <nav class="navbar navbar-expand-md navbar-dark">
+      <div class="container">
+        <a class="navbar-brand" href="{{ url_for('home', check_in_time=check_in_time) }}">
+          <img src="{{ url_for('static', filename='img/jeep.png') }}" width="25" height="25" alt="logo">
+        </a>
+        <a class="navbar-brand" href="{{ url_for('home', check_in_time=check_in_time) }}">Parking Space</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav ml-auto">
+            <!-- <a class="nav-item nav-link" href="{{ url_for('check_in') }}">Check-in</a> -->
+            <a class="nav-item nav-link" href="{{ url_for('reports', check_in_time=check_in_time) }}">Reports</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
 
-<!--Navbar Section-->
-
-     <nav class="navbar navbar-expand-md navbar-dark">
-        <div class="container">
-             <a class="navbar-brand" href="{{ url_for('home') }}">
-                 <img src="{{ url_for('static', filename='img/jeep.png') }}" width="25" height="25"  alt="logo">
-             </a>
-             <a class="navbar-brand" href="{{ url_for('home') }}">Parking Space</a>
-             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-             </button>
-             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-              <div class="navbar-nav ml-auto">
-                <a class="nav-item nav-link" href="{{ url_for('check_in') }}">Check-in</a>
-                <a class="nav-item nav-link" href="{{ url_for('reports') }}">Reports</a>
-              </div>
-             </div>
-
-         </div>
-     </nav>
-</header>
-
-
-  <!--Main Dashboard Section-->
-
+  <!-- Main Dashboard Section -->
   <section class="testimonial pt-5" id="testimonial">
     <div class="container">
-        <div class="row ">
-            <div class=" col-md-4 py-4 text-white text-center " >
-                <div class="rounded-left " id="left-side">
-                    <div class="card-body" >
-
-                     <img src="{{ url_for('static', filename='img/jeep.png') }}" width="50" height="50"  alt="logo">
-
-                        <h2 class="pb-5 font-weight-bold" id="sign-head">
-                            ACCOUNT MANAGEMENT
-                        </h2>
-                        <p class="py-5 font-italic">Bringing tomorrow, today.</p>
-                    </div>
-                </div>
-             </div>
-             <div class="col-md-8 py-4 border-0">
-                 <h3 class="font-weight-bold pb-3">WELCOME ADMIN</h3>
-
-
-
-                 <div class="row">
-  <div class="col-4" >
-    <div class="list-group" id="list-tab" role="tablist">
-      <a class="list-group-item list-group-item-action active" id="list-user-list" data-toggle="list" href="#list-user" role="tab" aria-controls="home">Users</a>
-      <a class="list-group-item list-group-item-action" id="list-location-list" data-toggle="list" href="#list-location" role="tab" aria-controls="profile">Locations</a>
-      <a class="list-group-item list-group-item-action" id="list-feedback-list" data-toggle="list" href="#list-comments" role="tab" aria-controls="profile">Feedback</a>
-    </div>
-  </div>
-  <div class="col-8">
-    <div class="tab-content" id="nav-tabContent">
-
-
-
-
-      <div class="tab-pane fade show active" id="list-user" role="tabpanel" aria-labelledby="list-user-list">
-
-
-
-      <ul class="list-group ">
-        {% for user in users %}
-        {% if user.email == 'admin@gmail.com' %}
-  <li class="list-group-item "><a href="#">{{ user.fname }} | {{ user.email }} (ADMIN)</a></li>
-  {% else %}
-  <li class="list-group-item "><a href="#">{{ user.fname }} | {{ user.email }}</a><span class="float-right"><a href="{{ url_for('delete_user', id=user.id) }}"
-    >
-    <i class="fa-sharp fa-solid fa-trash" style="color: red;"></i>
-</a></span></li>
-  {% endif %}
-  {% endfor %}
-</ul>
-
-
-      </div>
-
-
-      <div class="tab-pane fade " id="list-location" role="tabpanel" aria-labelledby="list-location-list">
-
-
-      <ul class="list-group ">
-        {% for location in locations %}
-        <li class="list-group-item "><a href="#">{{ location.id }}. {{ location.name }}</a><span class="float-right"><a href="{{ url_for('delete_location', id=location.id) }}"
-          >
-          <i class="fa-sharp fa-solid fa-trash" style="color: red;"></i>
-      </a></span></li>
-        {% endfor %}
-        <br>
-        <!-- Form section -->
-        <form action="{{ url_for('add_location') }}" method="post">
-          <div class="form-group">
-              <label for="exampleInputEmail1">Add Location</label>
-              <div class="row">
-                <div class="col-lg-8">
-                  <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Enter location"
-                  name="location"
-              />
-                </div>
-                <div class="col-lg-4">
-                  <input
-                  type="number"
-                  min="0"
-                  class="form-control"
-                  placeholder="spots..."
-                  name="spots"
-              />
-                </div>
-
-              </div>
-                            <small id="emailHelp" class="form-text text-muted"
-                  >You should enter the name of the enterprise and number of spots available.</small
-              >
+      <div class="row ">
+        <div class=" col-md-4 py-4 text-white text-center ">
+          <div class="rounded-left " id="left-side">
+            <div class="card-body">
+              <img src="{{ url_for('static', filename='img/jeep.png') }}" width="50" height="50" alt="logo">
+              <h2 class="pb-5 font-weight-bold" id="sign-head">ACCOUNT MANAGEMENT</h2>
+              <p class="py-5 font-italic">Bringing tomorrow, today.</p>
+            </div>
           </div>
-          <button type="submit" class="btn btn-dark">Add</button>
-      </form>
-      <!-- End of form section -->
-</ul>
-
-
+        </div>
+        <div class="col-md-8 py-4 border-0">
+          <h3 class="font-weight-bold pb-3">WELCOME ADMIN</h3>
+          <div class="row">
+            <div class="col-4">
+              <div class="list-group" id="list-tab" role="tablist">
+                <a class="list-group-item list-group-item-action active" id="list-user-list" data-toggle="list" href="#list-user" role="tab" aria-controls="home">Users</a>
+                <a class="list-group-item list-group-item-action" id="list-location-list" data-toggle="list" href="#list-location" role="tab" aria-controls="profile">Locations</a>
+                <a class="list-group-item list-group-item-action" id="list-feedback-list" data-toggle="list" href="#list-comments" role="tab" aria-controls="profile">Feedback</a>
+              </div>
+            </div>
+            <div class="col-8">
+              <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="list-user" role="tabpanel" aria-labelledby="list-user-list">
+                  <ul class="list-group">
+                    {% for user in users %}
+                    {% if user.email == 'admin@gmail.com' %}
+                    <li class="list-group-item "><a href="#">{{ user.fname }} | {{ user.email }} (ADMIN)</a></li>
+                    {% else %}
+                    <li class="list-group-item "><a href="#">{{ user.fname }} | {{ user.email }}</a><span class="float-right"><a href="{{ url_for('delete_user', id=user.id) }}"><i class="fa-sharp fa-solid fa-trash" style="color: red;"></i></a></span></li>
+                    {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div class="tab-pane fade" id="list-location" role="tabpanel" aria-labelledby="list-location-list">
+                  <ul class="list-group">
+                    {% for location in locations %}
+                    <li class="list-group-item "><a href="#">{{ location.id }}. {{ location.name }}</a><span class="float-right"><a href="{{ url_for('delete_location', id=location.id) }}"><i class="fa-sharp fa-solid fa-trash" style="color: red;"></i></a></span></li>
+                    {% endfor %}
+                    <br>
+                    <!-- Form section -->
+                    <form action="{{ url_for('add_location') }}" method="post">
+                      <div class="form-group">
+                        <label for="exampleInputEmail1">Add Location</label>
+                        <div class="row">
+                          <div class="col-lg-8">
+                            <input type="text" class="form-control" placeholder="Enter location" name="location" />
+                          </div>
+                          <div class="col-lg-4">
+                            <input type="number" min="0" class="form-control" placeholder="spots..." name="spots" />
+                          </div>
+                        </div>
+                        <small id="emailHelp" class="form-text text-muted">You should enter the name of the enterprise and number of spots available.</small>
+                      </div>
+                      <button type="submit" class="btn btn-dark">Add</button>
+                    </form>
+                    <!-- End of form section -->
+                  </ul>
+                </div>
+                <div class="tab-pane fade" id="list-comments" role="tabpanel" aria-labelledby="list-location-list">
+                  <ul class="list-group">
+                    {% for feed in feeds %}
+                    <li class="list-group-item "><a href="#">{{ feed.comment }}<br><span class="float-right">- {{ feed.fname }}</span></a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="go-home py-2 font-italic">
+            <p>
+              <a class="navbar-brand" href="{{ url_for('home', check_in_time=check_in_time) }}">
+                <img src="{{ url_for('static', filename='img/Back.png') }}" width="30" height="30" alt="logo">
+              </a><small>Go back to <a href="{{ url_for('home', check_in_time=check_in_time) }}" id="signup">Homepage.</small></a>
+            </p>
+          </div>
+        </div>
       </div>
-      <div class="tab-pane fade " id="list-comments" role="tabpanel" aria-labelledby="list-location-list">
-
-
-        <ul class="list-group ">
-          {% for feed in feeds %}
-          <li class="list-group-item "><a href="#">{{ feed.comment }}<br><span class="float-right">- {{ feed.fname }}</span></a></li>
-
-          {% endfor %}
-  </ul>
-
-
-        </div>
     </div>
-  </div>
-</div>
-<div class="go-home py-2 font-italic">
-             <p>
-                 <a class="navbar-brand" href="{{ url_for('home') }}">
-                 <img src="{{ url_for('static', filename='img/Back.png') }}" width="30" height="30"  alt="logo">
-                 </a><small>Go back to <a href="{{ url_for('home') }}" id="signup">Homepage.</small> </a>
-             </p>
+  </section>
 
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-            </div>
+  <!-- Custom js -->
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
 
-            </div>
-
-
-        </div>
-    </div>
-</section>
-
-
-
-
-
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-    <!-- Custom js -->
-    <script src="{{ url_for('static' , filename='script.js') }}"></script>
-  </body>
 </html>

@@ -30,6 +30,22 @@ from receiptManager import *
 from feedbackManager import *
 #------------------------------------------------------------------------------#
 
+c_o_c_i = None
+
+################## FUNCTIONS ##################
+def twelve_to_twentyfour(string):
+
+      if string[-2:] == "AM" and string[:2] == "12":
+         return "00" + string[2:-2]
+
+      elif string[-2:] == "AM":
+         return string[:-2]
+
+      elif string[-2:] == "PM" and string[:2] == "12":
+         return string[:-2]
+
+      else:
+          return str(int(string[:2]) + 12) + string[2:8]
 
 # Config Flask
 app = Flask(__name__)
@@ -71,16 +87,20 @@ def admin_only(function):
 def home():
     permission = None
     try:
-        if Receipt.get(Receipt.user == current_user.email, Receipt.status == 'Unpaid'):
+        if Receipt.get(Receipt.user == current_user.email, Receipt.status == 'Unpaid', Receipt.time_in >= int(datetime.timestamp(datetime.now()))) or request.args.get('check_in_time'):
             permission = True
     except:
         permission = False
 
+    print(f"CIT=============={request.args.get('check_in_time')}")
+    global c_o_c_i
+    c_o_c_i = request.args.get('check_in_time')
     if request.method == 'POST':
         Feedback.insert(fname=request.form['name'], comment=request.form['comment']).execute()
-        return render_template('index.html', logged_in=current_user.is_authenticated, message='Comment has been successfully sent 👍')
-    return render_template('index.html', logged_in=current_user.is_authenticated, permission_checkout=permission)
+        return render_template('index.html', logged_in=current_user.is_authenticated, message='Comment has been successfully sent 👍', permission_checkout=permission, check_in_time=request.args.get('check_in_time'))
+    return render_template('index.html', logged_in=current_user.is_authenticated, permission_checkout=permission, check_in_time=request.args.get('check_in_time'))
 
+#----------------------------- MANAGE ACCOUNT ---------------------------------------#
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -101,8 +121,11 @@ def login():
             flash('You were successfully logged in')
             try:
                 # Check whether user has any unpaid payments
-                if Receipt.get(Receipt.user == current_user.email, Receipt.status == 'Unpaid'):
-                    return redirect(url_for('check_out'))
+                if Receipt.get(Receipt.user == current_user.email, Receipt.status == 'Unpaid', Receipt.time_in >= int(datetime.timestamp(datetime.now()))):
+                    check_in_time = Receipt.get(Receipt.user == current_user.email, Receipt.status == 'Unpaid', Receipt.time_in >= int(datetime.timestamp(datetime.now()))).time_in
+                    # print("=================================")
+                    # print(Receipt.get(Receipt.user == current_user.email, Receipt.status == 'Unpaid', Receipt.time_in >= int(datetime.timestamp(datetime.now()))).time_in)
+                    return redirect(url_for('check_out', check_in_time=check_in_time))
             except:
                 return redirect(url_for('check_in'))
         else:
@@ -127,6 +150,7 @@ def register():
             return render_template("login.html", error=error)
     return render_template('sign-up.html', logged_in=current_user.is_authenticated)
 
+#------------------------------------------------------------------------------#
 
 #----------------------------- CHECK IN ---------------------------------------#
 
@@ -151,73 +175,13 @@ def search_by_location(location):
 
 #------------------------------------------------------------------------------#
 
-@app.route('/check-out', methods=['GET', 'POST'])
-def check_out():
-    error = None
-    reserved_spot_id = Receipt.select().where(Receipt.user == current_user.email, Receipt.status=='Unpaid').get().spot_id
-    reserved_spot_name = Location.select().where(Location.id == ParkingSpot.select().where(ParkingSpot.id == reserved_spot_id).get().business_id).get().name
-    print(reserved_spot_id)
-    print(reserved_spot_name)
-    if request.method == 'POST':
-        # Setting parameters
-        email = request.form['email']
-        try:
-            check_in_time = Receipt.select().where(Receipt.user == email).order_by(Receipt.time_in.desc()).get().time_in
-        except:
-            # If Receipt input DoesNotExist
-            return render_template('check-out.html', logged_in=current_user.is_authenticated, error='Email does not exist!')
-
-
-
-        #Find user by email entered.
-        try:
-            # Reserves the first parking spot said to be OPEN
-            check_out_time = int(datetime.timestamp(datetime.now()))
-            q = Receipt.update(time_out=check_out_time, status='Paid').where(Receipt.user == email, Receipt.time_in == check_in_time)
-            q.execute()
-
-            # Updates the status of the spot to OPEN
-            spot_id = [spot.spot_id for spot in Receipt.select().where(Receipt.user == email, Receipt.time_in == check_in_time)][0]
-            q = ParkingSpot.update(type='Open').where(ParkingSpot.id == spot_id)
-            q.execute()
-
-            # Does calculation of the price
-            price = (check_out_time - check_in_time) * 10
-
-            # Updates the PRICE on the DB
-            q = Receipt.update(price=price).where(Receipt.time_in == check_in_time, Receipt.user == email)
-            q.execute()
-
-            id = f"{email}{check_out_time}"
-            # Updates PRODUCT NAME IN RECEIPT DB
-            q = Receipt.update(product_name=id).where(Receipt.user == email, Receipt.time_out == check_out_time)
-            q.execute()
-
-            stripe.Product.create(name=id, default_price_data={
-                'currency': 'kes',
-                'unit_amount_decimal': price * 100})
-
-            # Cannot read data immediately after writing
-            time.sleep(20)
-
-            print(stripe.Product.search(query=f"name:'{id}'",))
-
-            product_id = stripe.Product.search(query="name:'{}'".format(id))['data'][0]['id']
-
-            price_id = stripe.Product.retrieve(product_id)['default_price']
-            # price_id = stripe.Product.list(limit=3)['data'][0]['default_price']
-
-            return redirect(url_for('payment', price_id=price_id))
-        except Receipt.DoesNotExist:
-            error = 'Receipt does not exist'
-            return render_template("check-out.html", error=error)
-    return render_template('check-out.html', logged_in=current_user.is_authenticated, spot_id=reserved_spot_id, spot_name=reserved_spot_name)
+#----------------------------- DASHBOARD ---------------------------------------#
 
 
 @app.route('/dashboard')
 @admin_only
 def dashboard():
-    return render_template('dashboard.html', receipts=Receipt.select(), users=User.select(), locations=Location.select(), feeds=Feedback.select())
+    return render_template('dashboard.html', receipts=Receipt.select(), users=User.select(), locations=Location.select(), feeds=Feedback.select(), check_in_time=request.args.get('check_in_time'))
 
 
 @app.route('/reports')
@@ -232,12 +196,36 @@ def reports():
             "location": locations_names[int(str(spot.business_id))]
         }
         spots.append(new_spot)
-    return render_template('reports.html', p_spots=spots)
+    return render_template('reports.html', p_spots=spots, check_in_time=request.args.get('check_in_time'))
+
+#------------------------------------------------------------------------------#
+
+#----------------------------- CHECK OUT ---------------------------------------#
+
+@app.route('/calendar/<int:location_id>', methods=['GET','POST'])
+def calendar(location_id):
+    error = None
+    if request.method == 'POST':
+        date, time = request.form.get('datetime').split(' ')[0], twelve_to_twentyfour(request.form.get('datetime').split(' ')[1]+request.form.get('datetime').split(' ')[2])
+        print("24-hour Format time ::",twelve_to_twentyfour(time))
+        month, day, year = int(date.split('/')[0]), int(date.split('/')[1]), int(date.split('/')[2])
+        hour, minute, second = int(time.split(':')[0]), int(time.split(':')[1]), int(time.split(':')[2])
+
+        scheduled_date = datetime(year, month, day, hour, minute, second)
+        if scheduled_date < datetime.now():
+            print("Nay")
+            error = 'Select an appopriate time'
+            return render_template('calendar.html', logged_in=current_user.is_authenticated, error=error)
+        else:
+            print("Yay")
+            return redirect(url_for('reserve', location_id=location_id, check_in_time=[year, month, day, hour, minute, second]))
+    return render_template('calendar.html', logged_in=current_user.is_authenticated)
 
 
 @app.route('/reserve/<int:location_id>', methods=['GET','POST'])
 def reserve(location_id):
     error = None
+    year, month, day, hour, minute, second = request.args.getlist('check_in_time')
     if request.method == 'GET':
         spots_in_location = ParkingSpot.select().where(ParkingSpot.business_id == location_id)
 
@@ -250,7 +238,8 @@ def reserve(location_id):
             q.execute()
 
             # Inserting timestamp of when user booked spot
-            check_in_time = int(datetime.timestamp(datetime.now()))
+            check_in_time = int(datetime.timestamp((datetime(int(year), int(month), int(day), int(hour), int(minute), int(second)))))
+            # check_in_time = int(datetime.timestamp(datetime.now()))
 
             Receipt.insert(user=current_user.email, spot_id=open_spots_ids[0], time_in=check_in_time, status='Unpaid').execute()
 
@@ -259,8 +248,101 @@ def reserve(location_id):
             locations = Location.select()
             return render_template('check-in.html', locations=locations, logged_in=current_user.is_authenticated, error=error)
 
-    return redirect(url_for('check_out'))
+    if (check_in_time - int(datetime.timestamp(datetime.now()))) <= 10:
+        return redirect(url_for('check_out', check_in_time=check_in_time))
+    else:
+        return redirect(url_for('home', check_in_time=check_in_time))
 
+
+@app.route('/cancel-reservation', methods=['GET', 'POST'])
+def cancel_reservation():
+    check_in_time = int(request.args.get('check_in_time'))
+    try:
+        spot_id = Receipt.select().where(Receipt.user == current_user.email, Receipt.time_in == check_in_time).get().spot_id
+
+        # Deletes the receipt
+        q = Receipt.delete().where(Receipt.user == current_user.email, Receipt.time_in == check_in_time)
+        q.execute()
+
+        # Updates the status of the spot to OPEN
+        q = ParkingSpot.update(type='Open').where(ParkingSpot.id == spot_id)
+        q.execute()
+        return redirect(url_for('home'))
+    except Receipt.DoesNotExist:
+        return redirect(url_for('check_out', check_in_time=check_in_time))
+
+@app.route('/check-out', methods=['GET', 'POST'])
+def check_out():
+    error = None
+    cancel_booking = None
+
+    if request.args.get('check_in_time') is None:
+        check_in_time = int(c_o_c_i)
+    else:
+        check_in_time = int(request.args.get('check_in_time'))
+    print(f"CITTTTTTTT========{check_in_time}")
+
+    if datetime.timestamp(datetime.now()) + 10 > check_in_time:
+        cancel_booking = True
+
+
+    reserved_spot_id = Receipt.select().where(Receipt.user == current_user.email, Receipt.time_in == check_in_time).get().spot_id
+    reserved_spot_name = Location.select().where(Location.id == ParkingSpot.select().where(ParkingSpot.id == reserved_spot_id).get().business_id).get().name
+    if request.method == 'POST':
+        # Setting parameters
+        print("Getting There")
+        email = request.form['email']
+        # check_in_time = int(c_o_c_i)
+        try:
+            # Reserves the first parking spot said to be OPEN
+            check_out_time = int(datetime.timestamp(datetime.now()))
+            q = Receipt.update(time_out=check_out_time, status='Paid').where(Receipt.user == email, Receipt.time_in == check_in_time)
+            q.execute()
+
+            # Updates the status of the spot to OPEN
+            spot_id = [spot.spot_id for spot in Receipt.select().where(Receipt.user == email, Receipt.time_in == check_in_time)][0]
+            q = ParkingSpot.update(type='Open').where(ParkingSpot.id == spot_id)
+            q.execute()
+
+            # Does calculation of the price
+            price = (check_out_time - check_in_time) * 20
+
+            # Updates the PRICE on the DB
+            q = Receipt.update(price=price).where(Receipt.time_in == check_in_time, Receipt.user == email)
+            q.execute()
+
+            id = f"{email}{check_out_time}"
+            # Updates PRODUCT NAME IN RECEIPT DB
+            q = Receipt.update(product_name=id).where(Receipt.user == email, Receipt.time_out == check_out_time)
+            q.execute()
+
+            print(price)
+            try:
+                stripe.Product.create(name=id, default_price_data={
+                'currency': 'kes',
+                'unit_amount_decimal': price * 100})
+
+                # Cannot read data immediately after writing
+                time.sleep(20)
+
+                print(stripe.Product.search(query=f"name:'{id}'",))
+
+                product_id = stripe.Product.search(query="name:'{}'".format(id))['data'][0]['id']
+
+                price_id = stripe.Product.retrieve(product_id)['default_price']
+                # price_id = stripe.Product.list(limit=3)['data'][0]['default_price']
+
+                return redirect(url_for('payment', price_id=price_id))
+            except Exception as e:
+                return redirect(url_for('check_out', check_in_time=check_in_time))
+
+        except Receipt.DoesNotExist:
+            error = 'Receipt does not exist'
+            return render_template("check-out.html", error=error,  logged_in=current_user.is_authenticated, spot_id=reserved_spot_id, spot_name=reserved_spot_name, check_in_time=check_in_time)
+    print(f"Trueee====={cancel_booking}")
+    return render_template('check-out.html', logged_in=current_user.is_authenticated, spot_id=reserved_spot_id, spot_name=reserved_spot_name, cancel_booking_permission=cancel_booking, check_in_time=check_in_time)
+
+#------------------------------------------------------------------------------#
 
 # @app.route('/payment/<int:price>')
 # def payment(price):
