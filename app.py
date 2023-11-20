@@ -280,9 +280,8 @@ def check_out():
         check_in_time = int(c_o_c_i)
     else:
         check_in_time = int(request.args.get('check_in_time'))
-    print(f"CITTTTTTTT========{check_in_time}")
 
-    if datetime.timestamp(datetime.now()) + 10 > check_in_time:
+    if datetime.timestamp(datetime.now()) + 2 > check_in_time:
         cancel_booking = True
 
 
@@ -290,7 +289,6 @@ def check_out():
     reserved_spot_name = Location.select().where(Location.id == ParkingSpot.select().where(ParkingSpot.id == reserved_spot_id).get().business_id).get().name
     if request.method == 'POST':
         # Setting parameters
-        print("Getting There")
         email = request.form['email']
         # check_in_time = int(c_o_c_i)
         try:
@@ -324,8 +322,6 @@ def check_out():
 
                 # Cannot read data immediately after writing
                 time.sleep(20)
-
-                print(stripe.Product.search(query=f"name:'{id}'",))
 
                 product_id = stripe.Product.search(query="name:'{}'".format(id))['data'][0]['id']
 
