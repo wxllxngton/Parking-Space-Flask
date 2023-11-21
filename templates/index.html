@@ -68,20 +68,28 @@
     <main style="padding-top: 60px;" id="home">
         <!-- Main Menu -->
         <div class="container-fluid banner text-center ">
-            {% if message %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            {% endif %}
             <p>
                 <img src="{{ url_for('static', filename='img/darkjeep.png') }}" width="80" height="80" alt="logo">
             </p>
 
             <h2 class="display-4 py-3 font-weight-bold">PARKING SPACE CAR PARKING SYSTEM</h2>
             <p class="font-italic">User-friendly parking solutions with a touch of class</p>
+
+            {% if message == 'Comment has been successfully sent 👍' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% elif message == 'No other reservations made. Checkout first!' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endif %}
 
             <div class="container pt-4">
                 <div class="card-deck">
@@ -144,9 +152,43 @@
                         {% else %}
                         <a class="checkin-mm text-decoration-none py-5 " role="link">
                             <div class="card-body">
-                                <img src="{{ url_for('static', filename='img/parking.png' ) }}" width="50" height="50"
+                                <img src="{{ url_for('static', filename='img/checkout2.png' ) }}" width="50" height="50"
                                     alt="logo">
-                                <h2 class="text-center font-weight-bold pt-4">Parking Terminal<br><small
+                                <h2 class="text-center font-weight-bold pt-4">Checkout Terminal<br><small
+                                        style="color: white; font-size: large;">Need to log in
+                                        first.</small></h2>
+                            </div>
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="card">
+                        {% if logged_in %}
+                        {% if permission_manage_reservations %}
+                        <a class="checkin-mm text-decoration-none py-5"
+                            href="{{ url_for('manage_reservations', check_in_time=check_in_time) }}">
+                            <div class="card-body">
+                                <img src="{{ url_for('static', filename='img/booking.png' ) }}" width="50" height="50"
+                                    alt="logo">
+                                <h2 class="text-center font-weight-bold pt-4">Manage Reservations</h2>
+                            </div>
+                        </a>
+                        {% else %}
+                        <a class="checkin-mm text-decoration-none py-5" role="link">
+                            <div class="card-body">
+                                <img src="{{ url_for('static', filename='img/booking.png' ) }}" width="50"
+                                    height="50" alt="logo">
+                                <h2 class="text-center font-weight-bold pt-4">Manage Reservations<br><small
+                                        style="color: white; font-size: large;">No reservations made.</small></h2>
+                            </div>
+                        </a>
+                        {% endif %}
+                        {% else %}
+                        <a class="checkin-mm text-decoration-none py-5 " role="link">
+                            <div class="card-body">
+                                <img src="{{ url_for('static', filename='img/booking.png' ) }}" width="50" height="50"
+                                    alt="logo">
+                                <h2 class="text-center font-weight-bold pt-4">Manage Reservations<br><small
                                         style="color: white; font-size: large;">Need to log in
                                         first.</small></h2>
                             </div>
@@ -329,6 +371,7 @@
             </div>
 
         </main>
+
 
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->

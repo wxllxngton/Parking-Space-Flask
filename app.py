@@ -85,20 +85,33 @@ def admin_only(function):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    message = None
     permission = None
+    permission_manage_reservations = None
+
+    if request.args.get('message'):
+        message = request.args.get('message')
+
     try:
-        if Receipt.get(Receipt.user == current_user.email, Receipt.status == 'Unpaid', Receipt.time_in >= int(datetime.timestamp(datetime.now()))) or request.args.get('check_in_time'):
+        # if Receipt.get(Receipt.user == current_user.email, Receipt.status == 'Unpaid', Receipt.time_in >= int(datetime.timestamp(datetime.now()))) or request.args.get('check_in_time'):
+        if Receipt.get(Receipt.user == current_user.email, Receipt.status == 'Unpaid', Receipt.time_in <= int(datetime.timestamp(datetime.now())) + 60):
             permission = True
     except:
         permission = False
+
+    try:
+        if Receipt.select().where(Receipt.user == current_user.email, Receipt.status == 'Unpaid'):
+            permission_manage_reservations = True
+    except:
+        permission_manage_reservations = False
 
     print(f"CIT=============={request.args.get('check_in_time')}")
     global c_o_c_i
     c_o_c_i = request.args.get('check_in_time')
     if request.method == 'POST':
         Feedback.insert(fname=request.form['name'], comment=request.form['comment']).execute()
-        return render_template('index.html', logged_in=current_user.is_authenticated, message='Comment has been successfully sent 👍', permission_checkout=permission, check_in_time=request.args.get('check_in_time'))
-    return render_template('index.html', logged_in=current_user.is_authenticated, permission_checkout=permission, check_in_time=request.args.get('check_in_time'))
+        return render_template('index.html', logged_in=current_user.is_authenticated, message='Comment has been successfully sent 👍', permission_checkout=permission, check_in_time=request.args.get('check_in_time'), permission_manage_reservations=permission_manage_reservations)
+    return render_template('index.html', logged_in=current_user.is_authenticated, permission_checkout=permission, check_in_time=request.args.get('check_in_time'), permission_manage_reservations=permission_manage_reservations, message=message)
 
 #----------------------------- MANAGE ACCOUNT ---------------------------------------#
 
@@ -138,6 +151,11 @@ def login():
 def register():
     error = None
     if request.method == 'POST':
+        # Validating the inputs
+        if request.form['password'] or request.form['fname'] or request.form['lname'] or request.form['email']:
+            error = 'You already have an account'
+            return render_template("sign-up.html", logged_in=current_user.is_authenticated, error='Please fill all fields!')
+
         # Setting password
         password_hashed = generate_password_hash(password=request.form['password'], method="pbkdf2:sha256", salt_length=8)
         #Confirming existence of email
@@ -151,6 +169,51 @@ def register():
     return render_template('sign-up.html', logged_in=current_user.is_authenticated)
 
 #------------------------------------------------------------------------------#
+
+#----------------------------- MANAGE RESERVATIONS ---------------------------------------#
+@app.route('/manage-reservations')
+def manage_reservations():
+    message = None
+    # reservations = Receipt.select().join(ParkingSpot).where(Receipt.user == current_user.email, Receipt.status == 'Unpaid', Receipt.time_in >= int(datetime.timestamp(datetime.now())))
+    if request.args.get('message'):
+        message = request.args.get('message')
+
+    reservations = []
+    for reservation in Receipt.select().where(Receipt.user == current_user.email, Receipt.status == 'Unpaid', Receipt.time_in >= int(datetime.timestamp(datetime.now()))):
+        business_id = ParkingSpot.select().where(ParkingSpot.id == reservation.spot_id).get().business_id
+        new_reservation = {
+            "time_in" : datetime.fromtimestamp(reservation.time_in),
+            "spot_id": reservation.spot_id,
+            "location_name" : Location.select().where(Location.id == business_id).get().name
+        }
+        reservations.append(new_reservation)
+
+    print(reservations)
+    if reservations:
+        return render_template('manage-reservations.html', logged_in=current_user.is_authenticated, reservations=reservations, check_in_time=request.args.get('check_in_time'), message=message)
+    else:
+        if request.args.get('check_in_time'):
+            message = 'No other reservations made. Checkout first!'
+        return redirect(url_for('home', check_in_time=request.args.get('check_in_time'), message=message))
+
+@app.route('/manage-reservations_cancel')
+def manage_reservations_cancel():
+    spot_id = int(request.args.get('spot_id'))
+    check_in_time = int(request.args.get('check_in_time'))
+    try:
+        # Deletes the receipt
+        q = Receipt.delete().where(Receipt.user == current_user.email, Receipt.status == 'Unpaid', Receipt.spot_id == spot_id)
+        q.execute()
+
+        # Updates the status of the spot to OPEN
+        q = ParkingSpot.update(type='Open').where(ParkingSpot.id == spot_id)
+        q.execute()
+        return redirect(url_for('manage_reservations', check_in_time=check_in_time, message="Reservation has been successfully cancelled 👍"))
+    except Receipt.DoesNotExist:
+        return redirect(url_for('check_out', check_in_time=check_in_time, message="Receipt seems not to exist"))
+#-----------------------------------------------------------------------------------------#
+
+
 
 #----------------------------- CHECK IN ---------------------------------------#
 
@@ -248,7 +311,7 @@ def reserve(location_id):
             locations = Location.select()
             return render_template('check-in.html', locations=locations, logged_in=current_user.is_authenticated, error=error)
 
-    if (check_in_time - int(datetime.timestamp(datetime.now()))) <= 10:
+    if (check_in_time - int(datetime.timestamp(datetime.now()))) <= 60:
         return redirect(url_for('check_out', check_in_time=check_in_time))
     else:
         return redirect(url_for('home', check_in_time=check_in_time))
@@ -334,9 +397,9 @@ def check_out():
 
         except Receipt.DoesNotExist:
             error = 'Receipt does not exist'
-            return render_template("check-out.html", error=error,  logged_in=current_user.is_authenticated, spot_id=reserved_spot_id, spot_name=reserved_spot_name, check_in_time=check_in_time)
+            return render_template("check-out.html", error=error,  logged_in=current_user.is_authenticated, spot_id=reserved_spot_id, spot_name=reserved_spot_name, check_in_time=check_in_time, formatted_check_in_time=datetime.fromtimestamp(check_in_time))
     print(f"Trueee====={cancel_booking}")
-    return render_template('check-out.html', logged_in=current_user.is_authenticated, spot_id=reserved_spot_id, spot_name=reserved_spot_name, cancel_booking_permission=cancel_booking, check_in_time=check_in_time)
+    return render_template('check-out.html', logged_in=current_user.is_authenticated, spot_id=reserved_spot_id, spot_name=reserved_spot_name, cancel_booking_permission=cancel_booking, check_in_time=check_in_time, formatted_check_in_time=datetime.fromtimestamp(check_in_time))
 
 #------------------------------------------------------------------------------#
 

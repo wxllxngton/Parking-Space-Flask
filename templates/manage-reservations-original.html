@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Checkout</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!--Icon for Title-->
+    <link rel="icon" href="{{ url_for('static', filename='img/jeep.png') }}" type="image/icon type">
+
+    <!-- FontAwesome CDN -->
+    <script src="https://kit.fontawesome.com/321779f561.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="loader"></div>
+
+    <header>
+      <!-- Navbar Section -->
+      <nav class="navbar navbar-expand-md navbar-dark">
+        <div class="container">
+          <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='img/jeep.png') }}" width="25" height="25"  alt="logo">
+          </a>
+          <a class="navbar-brand" href="{{ url_for('home', check_in_time=check_in_time) }}">Leaving {{ current_user.fname }}?</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ml-auto">
+              <!-- Shows logged_in -->
+              {% if logged_in %}
+                {% if current_user.email == 'admin@gmail.com' %}
+                  <a class="nav-item nav-link" href="{{ url_for('dashboard', check_in_time=check_in_time) }}">Admin <span class="sr-only">(current)</span></a>
+                {% endif %}
+                <a class="nav-item nav-link" href="/logout">Sign out <span class="sr-only">(current)</span></a>
+              {% endif %}
+              <!-- Shows if not logged_in -->
+              {% if not logged_in %}
+                <a class="nav-item nav-link" href="/register">Register <span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="/login">Login <span class="sr-only">(current)</span></a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="card mt-5 p-3 notification-card">
+      <div class="media">
+        <div class="media-body">
+          <h6><i class="fa-solid fa-check" style="color: #2fe432;"></i> Booking Complete</h6>
+          <p class="mt-2 mb-0">Your reserved spot id is <b>{{ spot_id }}</b> at <b>{{ spot_name }}</b></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout Section -->
+    <div class="container-fluid px-0 py-4 mt-4 text-dark">
+      <div class="row">
+        <div class="col-md-12 col-md-offset-12">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <div class="text-center">
+                <div class="checkout-head  bg-dark  py-4 text-white">
+                  <img src="{{ url_for('static', filename='img/checkout2.png') }}" width="50" height="50"  alt="logo">
+                  <h2 class="text-center font-weight-bold">Checkout</h2>
+                  <p class="font-italic">Input your email address</p>
+                </div>
+                {% if error %}
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ error }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                {% endif %}
+                <form id="register-form" role="form" autocomplete="off" class="form py-2" action="{{ url_for('check_out') }}" method="post">
+                  <!-- {% if not cancel_booking_permission %}
+                    <a class="btn btn-lg btn-dark btn-block" href="{{ url_for('cancel_reservation', check_in_time=check_in_time) }}">Delete</a>
+                  {% else %}
+                    <div class="form-group">
+                      <input type="text" class="form-control" id="email" placeholder="Email address..." name="email">
+                    </div>
+                    <button type="submit" class="btn btn-lg btn-dark btn-block">Confirm</button>
+                  {% endif %} -->
+                  {% for reservation in reservations %}
+                  <div class="card">
+                    {{reservation.user}}
+                    {{reservation.time_in}}
+                    {{reservation.spot_id}}
+                  </div>
+                  {% endfor %}
+                  <div class="form-group">
+                    <div class="go-home py-2 font-italic">
+                      <p class="font-italic">
+                        <a class="navbar-brand" href="{{ url_for('home', check_in_time=check_in_time) }}">
+                          <img src="{{ url_for('static', filename='img/back.png') }}" width="30" height="30"  alt="logo">
+                        </a><small>Go back to <a href="{{ url_for('home', check_in_time=check_in_time) }}" id="signup">Homepage </small></a>
+                      </p>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <!-- Custom js -->
+    <script src="{{ url_for('static' , filename='script.js') }}"></script>
+  </body>
+</html>
