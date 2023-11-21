@@ -193,7 +193,7 @@ def manage_reservations():
         return render_template('manage-reservations.html', logged_in=current_user.is_authenticated, reservations=reservations, check_in_time=request.args.get('check_in_time'), message=message)
     else:
         if request.args.get('check_in_time'):
-            message = 'No other reservations made. Checkout first!'
+            message = 'No other reservations made. Check out/Check in first!'
         return redirect(url_for('home', check_in_time=request.args.get('check_in_time'), message=message))
 
 @app.route('/manage-reservations_cancel')
@@ -314,7 +314,7 @@ def reserve(location_id):
     if (check_in_time - int(datetime.timestamp(datetime.now()))) <= 60:
         return redirect(url_for('check_out', check_in_time=check_in_time))
     else:
-        return redirect(url_for('home', check_in_time=check_in_time))
+        return redirect(url_for('home', check_in_time=check_in_time, message='Reservation successful.'))
 
 
 @app.route('/cancel-reservation', methods=['GET', 'POST'])
@@ -330,7 +330,7 @@ def cancel_reservation():
         # Updates the status of the spot to OPEN
         q = ParkingSpot.update(type='Open').where(ParkingSpot.id == spot_id)
         q.execute()
-        return redirect(url_for('home'))
+        return redirect(url_for('home', message='Cancel successful.'))
     except Receipt.DoesNotExist:
         return redirect(url_for('check_out', check_in_time=check_in_time))
 
