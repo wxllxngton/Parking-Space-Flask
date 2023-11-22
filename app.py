@@ -152,8 +152,7 @@ def register():
     error = None
     if request.method == 'POST':
         # Validating the inputs
-        if request.form['password'] or request.form['fname'] or request.form['lname'] or request.form['email']:
-            error = 'You already have an account'
+        if not request.form['password'] or not request.form['fname'] or not request.form['lname'] or not request.form['email']:
             return render_template("sign-up.html", logged_in=current_user.is_authenticated, error='Please fill all fields!')
 
         # Setting password
