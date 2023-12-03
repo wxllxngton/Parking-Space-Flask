@@ -69,7 +69,8 @@ $ pip install -r requirements.txt
 
 ### Dashboard
 
-![admin.png](https://github.com/wxllxngton/Parking-Space-Flask/blob/main/screenshots/admin.png)
+![admin](https://github.com/wxllxngton/Parking-Space-Flask/assets/79745456/a91eeee4-662c-4606-a47c-a8456b58866d)
+
 
 ### Reports
 
