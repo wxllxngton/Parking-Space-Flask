@@ -48,7 +48,8 @@ $ pip install -r requirements.txt
 
 ### Home
 
-![home](https://github.com/wxllxngton/Parking-Space-Flask/assets/79745456/91876136-8f9a-4721-bda0-16ff77b67b97)
+![index](https://github.com/wxllxngton/Parking-Space-Flask/assets/79745456/3b95aedc-b618-4662-8a6f-3a5263907950)
+
 
 ### Check In
 
@@ -61,7 +62,6 @@ $ pip install -r requirements.txt
 ### Schedule
 
 ![schedule2](https://github.com/wxllxngton/Parking-Space-Flask/assets/79745456/45dac3c7-749e-4dc8-8e1c-c707e5b274f9)
-![schedule](https://github.com/wxllxngton/Parking-Space-Flask/assets/79745456/bb39f3b2-db1a-4dc2-82cb-0e77a30f9273)
 
 ### Check Out
 
