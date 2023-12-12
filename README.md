@@ -27,19 +27,19 @@ $ ./Parking-Space-Flask/venv/Scripts/activate
 ## Run App in Virtual Environment
 
 ```bash
-$ (venv)./Parking-Space-Flask/app.py
-```
-
-## Exit Virtual Environment
-
-```bash
-$ (venv)exit
+$ (venv) ./Parking-Space-Flask/app.py
 ```
 
 ## Install packages with
 
 ```bash
-$ pip install -r requirements.txt
+$ (venv) pip install -r requirements.txt
+```
+
+## Exit Virtual Environment
+
+```bash
+$ (venv) exit
 ```
 
 ## Screenshots
