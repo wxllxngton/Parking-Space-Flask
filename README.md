@@ -24,6 +24,12 @@ My KCA University One Semester Project
 $ ./Parking-Space-Flask/venv/Scripts/activate
 ```
 
+## Run App
+
+```bash
+$ ./Parking-Space-Flask/app.py
+```
+
 ## Exit Virtual Environment
 
 ```bash
